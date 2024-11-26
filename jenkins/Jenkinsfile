@@ -1,0 +1,90 @@
+pipeline{
+    agent any
+    environment {
+        DOCKER_REPO="cjherath"
+        SCANNER_HOME = tool 'sonar-scanner'
+        //AWS_CREDENTIALS = credentials('AWS_ID')
+    }
+
+    tools {
+        jdk "jdk17"
+        maven "MAVEN3"
+    }
+
+    stages {
+        stage('Unit  test'){
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Vulnerability scan') {
+            steps {
+                sh "trivy fs --format table -o trivy-fs-report.html ." 
+            }
+        }
+
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-scanner') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=ecom_crm \
+                            -Dsonar.projectKey=ecom_crm \
+                            -Dsonar.java.binaries=. ''' 
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script{
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
+    
+        stage('Authenticate to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_ID', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh '''
+                        docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+                    '''
+                }
+
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    sh 'chmod +x jenkins/scripts/build.sh' //grant execute permission
+                    sh 'jenkins/scripts/build.sh'
+                }
+            }
+        }
+
+        stage('Deploy to K8s') {
+            steps {
+                // script {
+                //     env.KUBECONFIG = 'Kubernetes/kubeconfig'
+                // }
+                sh 'chmod +x jenkins/scripts/deploy.sh' //grant execute permission
+                sh 'jenkins/scripts/deploy.sh'
+
+
+            }
+        }
+
+        // stage('CleanWS') {
+        //     steps {
+        //         cleanWs()
+        //     }
+        // }
+    }
+}
