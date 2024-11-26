@@ -1,0 +1,36 @@
+version: 0.2
+env:
+  parameter-store:
+    LOGIN: SONARCLOUD_LOGIN
+    HOST: SONARCLOUD_HOST
+    organization: SONARCLOUD_ORGANIZATION
+    project: SONAR_PROJECT
+    CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN
+phases:
+  install:
+    runtime-versions:
+      java: corretto23
+    commands:
+      - cp ./settings.xml /root/.m2/settings.xml
+      - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain cjayecom --domain-owner 266735819216 --region us-east-1 --query authorizationToken --output text`
+  pre_build:
+    commands:
+      - apt-get update
+      - apt-get install -y jq checkstyle
+      - wget https://dlcdn.apache.org/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.tar.gz
+      - tar xvzf apache-maven-3.8.7-bin.tar.gz
+      - ln -s apache-maven-3.8.7 maven
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+      - unzip sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+      - export PATH=$PATH:/sonar-scanner-6.2.1.4610-linux/bin/
+  build:
+    commands:
+      - mvn test
+      - mvn checkstyle:checkstyle
+      - apt-get install -y openjdk-23-jdk
+      - export JAVA_HOME=/usr/lib/jvm/java-23-openjdk-amd64
+      - mvn sonar:sonar -Dsonar.login=$LOGIN -Dsonar.host.url=$HOST -Dsonar.projectKey=$Project -Dsonar.organization=$Organization -Dsonar.java.binaries=target/classes -Dsonar.junit.reportsPath=target/surefire-reports/ -Dsonar.jacoco.reportsPath=target/jacoco.exec -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+      - sleep 5
+      - curl https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project >result.json
+      - cat result.json
+      - if [ "$(jq -r '.projectStatus.status' result.json)" = "ERROR" ]; then echo "Quality Gate failed."; exit 1; fi

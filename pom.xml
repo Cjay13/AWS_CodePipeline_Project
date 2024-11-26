@@ -67,4 +67,12 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>cjayecom-maven-central-store</id>
+			<name>cjayecom-maven-central-store</name>
+			<url>https://cjayecom-266735819216.d.codeartifact.us-east-1.amazonaws.com/maven/maven-central-store/</url>
+		</repository>
+	</repositories>
+
 </project>
