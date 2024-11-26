@@ -17,9 +17,9 @@ phases:
     commands:
       - apt-get update
       - apt-get install -y jq checkstyle
-      - wget https://dlcdn.apache.org/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.tar.gz
-      - tar xvzf apache-maven-3.8.7-bin.tar.gz
-      - ln -s apache-maven-3.8.7 maven
+      - wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
+      - tar xvzf apache-maven-3.9.9-bin.tar.gz
+      - ln -s apache-maven-3.9.9 maven
       - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
       - unzip sonar-scanner-cli-6.2.1.4610-linux-x64.zip
       - export PATH=$PATH:/sonar-scanner-6.2.1.4610-linux/bin/
