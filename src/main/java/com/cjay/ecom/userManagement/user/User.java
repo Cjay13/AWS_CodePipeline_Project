@@ -49,4 +49,12 @@ public class User {
         this.email = email;
         this.address = address;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public List<Address> getAddress() {
+        return address;
+    }
 }

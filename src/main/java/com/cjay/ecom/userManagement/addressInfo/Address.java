@@ -71,5 +71,8 @@ public class Address {
     @JsonBackReference // Prevents infinite recursion
     private User user;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
 
