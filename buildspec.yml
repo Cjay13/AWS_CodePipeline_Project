@@ -3,8 +3,8 @@ env:
   parameter-store:
     LOGIN: SONARCLOUD_LOGIN
     HOST: SONARCLOUD_HOST
-    organization: SONARCLOUD_ORGANIZATION
-    project: SONAR_PROJECT
+    Organization: SONARCLOUD_ORGANIZATION
+    Project: SONAR_PROJECT
     #CODEARTIFACT_AUTH_TOKEN: CODEARTIFACT_AUTH_TOKEN
 phases:
   install:
