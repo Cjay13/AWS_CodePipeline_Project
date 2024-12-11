@@ -26,6 +26,7 @@ phases:
       - export PATH=$PATH:/sonar-scanner-6.2.1.4610-linux/bin/
   build:
     commands:
+      - echo $CODEARTIFACT_AUTH_TOKEN
       - mvn test -DskipTests
       - mvn checkstyle:checkstyle
       #- apt-get install -y openjdk-23-jdk
