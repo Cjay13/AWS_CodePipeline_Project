@@ -57,4 +57,7 @@ public class User {
     public List<Address> getAddress() {
         return address;
     }
+
+    public User() {
+    }
 }
